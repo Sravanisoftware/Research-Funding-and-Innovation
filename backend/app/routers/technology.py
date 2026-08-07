@@ -9,21 +9,27 @@ from app.schemas.technology import (
     TechnologyUpdate,
     TechnologyResponse,
 )
+from app.auth.dependencies import require_admin
+
 
 router = APIRouter(
     prefix="/technologies",
     tags=["Technology Intelligence"]
 )
 
+
 # ==========================================================
-# Create Technology
+# Create Technology - ADMIN ONLY
 # ==========================================================
 @router.post("/", response_model=TechnologyResponse)
 def create_technology(
     technology: TechnologyCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_admin)
 ):
-    new_technology = Technology(**technology.model_dump())
+    new_technology = Technology(
+        **technology.model_dump()
+    )
 
     db.add(new_technology)
     db.commit()
@@ -45,33 +51,46 @@ def get_all_technologies(
 # ==========================================================
 # Search by Category
 # ==========================================================
-@router.get("/search/category", response_model=list[TechnologyResponse])
+@router.get(
+    "/search/category",
+    response_model=list[TechnologyResponse]
+)
 def search_by_category(
     category: str,
     db: Session = Depends(get_db)
 ):
     return db.query(Technology).filter(
-        Technology.category.ilike(f"%{category}%")
+        Technology.category.ilike(
+            f"%{category}%"
+        )
     ).all()
 
 
 # ==========================================================
 # Search by Maturity Level
 # ==========================================================
-@router.get("/search/maturity", response_model=list[TechnologyResponse])
+@router.get(
+    "/search/maturity",
+    response_model=list[TechnologyResponse]
+)
 def search_by_maturity(
     maturity_level: str,
     db: Session = Depends(get_db)
 ):
     return db.query(Technology).filter(
-        Technology.maturity_level.ilike(f"%{maturity_level}%")
+        Technology.maturity_level.ilike(
+            f"%{maturity_level}%"
+        )
     ).all()
 
 
 # ==========================================================
 # High Growth Technologies
 # ==========================================================
-@router.get("/search/high-growth", response_model=list[TechnologyResponse])
+@router.get(
+    "/search/high-growth",
+    response_model=list[TechnologyResponse]
+)
 def high_growth_technologies(
     min_score: float = 80,
     db: Session = Depends(get_db)
@@ -84,7 +103,10 @@ def high_growth_technologies(
 # ==========================================================
 # High Adoption Technologies
 # ==========================================================
-@router.get("/search/high-adoption", response_model=list[TechnologyResponse])
+@router.get(
+    "/search/high-adoption",
+    response_model=list[TechnologyResponse]
+)
 def high_adoption_technologies(
     min_rate: float = 70,
     db: Session = Depends(get_db)
@@ -97,7 +119,10 @@ def high_adoption_technologies(
 # ==========================================================
 # Top Technologies by Growth Score
 # ==========================================================
-@router.get("/top-growth", response_model=list[TechnologyResponse])
+@router.get(
+    "/top-growth",
+    response_model=list[TechnologyResponse]
+)
 def top_growth_technologies(
     limit: int = 5,
     db: Session = Depends(get_db)
@@ -135,8 +160,12 @@ def technology_statistics(
 
     return {
         "total_technologies": total,
-        "average_growth_score": round(avg_growth, 2),
-        "average_adoption_rate": round(avg_adoption, 2)
+        "average_growth_score": round(
+            avg_growth, 2
+        ),
+        "average_adoption_rate": round(
+            avg_adoption, 2
+        )
     }
 
 
@@ -168,12 +197,17 @@ def category_analytics(
 # ==========================================================
 # Get Technology by ID
 # ==========================================================
-@router.get("/{technology_id}", response_model=TechnologyResponse)
+@router.get(
+    "/{technology_id}",
+    response_model=TechnologyResponse
+)
 def get_technology(
     technology_id: int,
     db: Session = Depends(get_db)
 ):
-    technology = db.query(Technology).filter(
+    technology = db.query(
+        Technology
+    ).filter(
         Technology.id == technology_id
     ).first()
 
@@ -187,15 +221,21 @@ def get_technology(
 
 
 # ==========================================================
-# Update Technology
+# Update Technology - ADMIN ONLY
 # ==========================================================
-@router.put("/{technology_id}", response_model=TechnologyResponse)
+@router.put(
+    "/{technology_id}",
+    response_model=TechnologyResponse
+)
 def update_technology(
     technology_id: int,
     updated_technology: TechnologyUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_admin)
 ):
-    technology = db.query(Technology).filter(
+    technology = db.query(
+        Technology
+    ).filter(
         Technology.id == technology_id
     ).first()
 
@@ -215,14 +255,17 @@ def update_technology(
 
 
 # ==========================================================
-# Delete Technology
+# Delete Technology - ADMIN ONLY
 # ==========================================================
 @router.delete("/{technology_id}")
 def delete_technology(
     technology_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(require_admin)
 ):
-    technology = db.query(Technology).filter(
+    technology = db.query(
+        Technology
+    ).filter(
         Technology.id == technology_id
     ).first()
 

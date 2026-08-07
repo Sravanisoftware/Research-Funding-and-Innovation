@@ -1,3 +1,4 @@
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -8,6 +9,8 @@ from app.schemas.research_profile import (
     ResearchProfileCreate,
     ResearchProfileResponse,
 )
+from app.auth.dependencies import get_current_user
+
 
 router = APIRouter(
     prefix="/profile",
@@ -15,18 +18,50 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=ResearchProfileResponse)
+# ============================================================
+# CREATE RESEARCH PROFILE
+# ============================================================
+
+@router.post(
+    "/",
+    response_model=ResearchProfileResponse
+)
 def create_profile(
     profile: ResearchProfileCreate,
+    current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # For now, use the first user.
-    # Later, we'll replace this with the logged-in JWT user.
-    user = db.query(User).first()
+    # Find the currently logged-in user
+    user = (
+        db.query(User)
+        .filter(
+            User.email == current_user["email"]
+        )
+        .first()
+    )
 
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
 
+    # Check whether this user already has a profile
+    existing_profile = (
+        db.query(ResearchProfile)
+        .filter(
+            ResearchProfile.user_id == user.id
+        )
+        .first()
+    )
+
+    if existing_profile:
+        raise HTTPException(
+            status_code=400,
+            detail="Research profile already exists for this user"
+        )
+
+    # Create profile for logged-in user
     new_profile = ResearchProfile(
         user_id=user.id,
         research_domain=profile.research_domain,
@@ -44,25 +79,89 @@ def create_profile(
     return new_profile
 
 
-@router.get("/", response_model=ResearchProfileResponse)
-def get_profile(db: Session = Depends(get_db)):
-    profile = db.query(ResearchProfile).first()
+# ============================================================
+# GET CURRENT USER'S RESEARCH PROFILE
+# ============================================================
+
+@router.get(
+    "/",
+    response_model=ResearchProfileResponse
+)
+def get_profile(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    user = (
+        db.query(User)
+        .filter(
+            User.email == current_user["email"]
+        )
+        .first()
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    profile = (
+        db.query(ResearchProfile)
+        .filter(
+            ResearchProfile.user_id == user.id
+        )
+        .first()
+    )
 
     if not profile:
-        raise HTTPException(status_code=404, detail="Profile not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Research Profile not found for this user"
+        )
 
     return profile
 
 
-@router.put("/", response_model=ResearchProfileResponse)
+# ============================================================
+# UPDATE CURRENT USER'S RESEARCH PROFILE
+# ============================================================
+
+@router.put(
+    "/",
+    response_model=ResearchProfileResponse
+)
 def update_profile(
     profile: ResearchProfileCreate,
+    current_user: dict = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    existing_profile = db.query(ResearchProfile).first()
+    user = (
+        db.query(User)
+        .filter(
+            User.email == current_user["email"]
+        )
+        .first()
+    )
+
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    existing_profile = (
+        db.query(ResearchProfile)
+        .filter(
+            ResearchProfile.user_id == user.id
+        )
+        .first()
+    )
 
     if not existing_profile:
-        raise HTTPException(status_code=404, detail="Profile not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Research Profile not found for this user"
+        )
 
     existing_profile.research_domain = profile.research_domain
     existing_profile.keywords = profile.keywords
@@ -75,3 +174,4 @@ def update_profile(
     db.refresh(existing_profile)
 
     return existing_profile
+
