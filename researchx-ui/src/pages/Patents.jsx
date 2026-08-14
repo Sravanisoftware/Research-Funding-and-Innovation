@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+//import api from "../api/axios";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import {
@@ -61,7 +62,7 @@ function Patents() {
       setError("");
 
       const response = await axios.get(API_URL + "/");
-
+      //const response = await api.get("/patents/");
       setPatents(response.data);
     } catch (err) {
       console.error("GET PATENTS ERROR:", err);
