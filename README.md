@@ -1,6 +1,6 @@
-# 🚀 Research Funding and Innovation Platform
+# 🚀 ResearchX — Research Funding and Innovation Platform
 
-An AI-powered Research Funding and Innovation Platform that helps researchers discover funding opportunities, explore patents, analyze emerging technologies, and gain AI-driven research insights through an interactive dashboard.
+ResearchX is an AI-powered Research Funding and Innovation Platform designed to help researchers discover funding opportunities, explore patents, analyze emerging technologies, and gain AI-driven commercialization insights through an interactive dashboard.
 
 ---
 
@@ -11,6 +11,7 @@ An AI-powered Research Funding and Innovation Platform that helps researchers di
 - User Login
 - JWT Authentication
 - Secure Password Hashing
+- User Profile Management
 
 ### 📊 Dashboard
 - Research Analytics
@@ -18,6 +19,7 @@ An AI-powered Research Funding and Innovation Platform that helps researchers di
 - Patent Statistics
 - Technology Insights
 - AI Recommendation Cards
+- Interactive Data Visualization
 
 ### 📑 Patent Management
 - View Patent Repository
@@ -25,163 +27,80 @@ An AI-powered Research Funding and Innovation Platform that helps researchers di
 - Citation Count
 - Patent Status
 - Technology Domain
+- Patent Distribution Analysis
 
 ### 💰 Funding Opportunities
-- Latest Funding Calls
+- Funding Opportunities
 - Funding Agencies
 - Grant Amount
 - Application Deadline
+- Funding Information
 
-### 💡 Technologies
+### 💡 Technology Intelligence
 - Emerging Technologies
 - Technology Domains
+- Technology Growth Scores
 - Innovation Trends
+- Technology Growth Analysis
 
 ### 🤖 AI Insights
 - AI-based Research Recommendations
-- Technology Intelligence
-- Research Trend Analysis
+- Innovation Score
+- Commercialization Readiness
+- Target Industry
+- Recommended Funding
+- Risk Level
+- Startup Potential
+- AI Commercialization Recommendation
 
 ### 📈 Analytics
 - Patent Analytics
 - Funding Analytics
+- Technology Analytics
 - Research Statistics
+- Interactive Charts
+
+### ⚙️ Settings
+- User Profile
+- Organization Information
+- Account Settings
 
 ---
 
-# 🛠 Tech Stack
+# 🏗️ System Architecture
 
-## Frontend
-- React.js
-- Vite
-- Tailwind CSS
-- Axios
-- React Router DOM
-- Lucide React
-
-## Backend
-- FastAPI
-- SQLAlchemy
-- PostgreSQL
-- Pydantic
-- JWT Authentication
-- Passlib
-
----
-
-# 📂 Project Structure
-
-```
-Research-Funding-and-Innovation
-│
-├── backend
-│   ├── app
-│   │   ├── auth
-│   │   ├── models
-│   │   ├── routers
-│   │   ├── schemas
-│   │   ├── services
-│   │   └── main.py
-│
-├── frontend
-│   ├── public
-│   ├── src
-│   │   ├── assets
-│   │   ├── components
-│   │   ├── pages
-│   │   ├── App.jsx
-│   │   └── main.jsx
-│   └── package.json
-│
-└── README.md
-```
-
----
-
-# ⚙️ Installation
-
-## Clone Repository
-
-```bash
-git clone https://github.com/<repository-url>.git
-```
-
----
-
-## Backend Setup
-
-```bash
-cd backend
-
-python -m venv venv
-
-venv\Scripts\activate
-
-pip install -r requirements.txt
-
-uvicorn app.main:app --reload
-```
-
-Backend runs at
-
-```
-http://127.0.0.1:8000
-```
-
----
-
-## Frontend Setup
-
-```bash
-cd frontend
-
-npm install
-
-npm run dev
-```
-
-Frontend runs at
-
-```
-http://localhost:5173
-```
-
----
-
-# 📡 API Endpoints
-
-## Authentication
-
-- POST /register
-- POST /login
-
-## Research Profile
-
-- GET /profile
-- POST /profile
-
-## Patents
-
-- GET /patents
-
-## Funding
-
-- GET /funding
-
-## Technologies
-
-- GET /technologies
-
-## Innovation
-
-- GET /innovation
-
-## Commercialization
-
-- GET /commercialization
-
-
-
-# 📄 License
-
-This project is developed for educational and internship purposes.
+```text
+                         ┌─────────────────────┐
+                         │        User         │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │  ResearchX Frontend │
+                         │                     │
+                         │ React + Vite        │
+                         │ Tailwind CSS        │
+                         │ Axios               │
+                         └──────────┬──────────┘
+                                    │
+                              REST API / Axios
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │   FastAPI Backend   │
+                         │                     │
+                         │ Authentication      │
+                         │ Patents             │
+                         │ Funding             │
+                         │ Technologies        │
+                         │ Analytics           │
+                         │ AI Insights         │
+                         └──────────┬──────────┘
+                                    │
+                              SQLAlchemy ORM
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │     PostgreSQL      │
+                         │     research_db     │
+                         └─────────────────────┘
