@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import {
   LineChart,
   Line,
@@ -14,8 +14,8 @@ export default function TechnologyChart() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("http://127.0.0.1:8000/technologies/")
+    api
+      .get("/technologies/")
       .then((res) => {
         const chartData = res.data.map((tech) => ({
           name: tech.technology_name,

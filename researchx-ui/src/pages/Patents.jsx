@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-//import api from "../api/axios";
+import api from "../api/axios";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import {
@@ -13,7 +12,7 @@ import {
   Eye,
 } from "lucide-react";
 
-const API_URL = "http://127.0.0.1:8000/patents";
+const API_URL = "/patents";
 
 const initialForm = {
   patent_title: "",
@@ -61,7 +60,7 @@ function Patents() {
       setLoading(true);
       setError("");
 
-      const response = await axios.get(API_URL + "/");
+      const response = await api.get(API_URL + "/");
       //const response = await api.get("/patents/");
       setPatents(response.data);
     } catch (err) {
@@ -164,7 +163,7 @@ function Patents() {
       setSuccess("");
 
       if (editingPatent) {
-        await axios.put(
+        await api.put(
           API_URL + "/" + editingPatent.id,
           form
         );
@@ -173,7 +172,7 @@ function Patents() {
           "Patent updated successfully."
         );
       } else {
-        await axios.post(
+        await api.post(
           API_URL + "/",
           form
         );
@@ -215,7 +214,7 @@ function Patents() {
       setError("");
       setSuccess("");
 
-      await axios.delete(
+      await api.delete(
         API_URL + "/" + patent.id
       );
 

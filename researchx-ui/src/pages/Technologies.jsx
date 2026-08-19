@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
@@ -19,7 +19,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-const API = "http://127.0.0.1:8000/technologies";
+const API = "/technologies";
 
 const emptyForm = {
   technology_name: "",
@@ -67,9 +67,9 @@ export default function Technologies() {
 
       const [techResponse, statsResponse, categoryResponse] =
         await Promise.all([
-          axios.get(`${API}/`),
-          axios.get(`${API}/statistics`),
-          axios.get(`${API}/analytics/category`),
+          api.get(`${API}/`),
+          api.get(`${API}/statistics`),
+          api.get(`${API}/analytics/category`),
         ]);
 
       setTechnologies(techResponse.data);
@@ -171,7 +171,7 @@ export default function Technologies() {
     try {
       setSaving(true);
 
-      await axios.post(`${API}/`, {
+      await api.post(`${API}/`, {
         technology_name: form.technology_name,
         category: form.category,
         description: form.description,
@@ -204,7 +204,7 @@ export default function Technologies() {
 
   const handleView = async (id) => {
     try {
-      const response = await axios.get(`${API}/${id}`);
+      const response = await api.get(`${API}/${id}`);
 
       setSelectedTechnology(response.data);
       setShowViewModal(true);
@@ -245,7 +245,7 @@ export default function Technologies() {
     try {
       setSaving(true);
 
-      await axios.put(
+      await api.put(
         `${API}/${selectedTechnology.id}`,
         {
           technology_name: form.technology_name,
@@ -288,7 +288,7 @@ export default function Technologies() {
     if (!confirmed) return;
 
     try {
-      await axios.delete(`${API}/${id}`);
+      await api.delete(`${API}/${id}`);
 
       await fetchData();
 

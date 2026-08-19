@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import {
@@ -22,7 +22,7 @@ import {
   Tooltip,
 } from "recharts";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "";
 
 function Analytics() {
   const [statistics, setStatistics] = useState({
@@ -51,9 +51,9 @@ function Analytics() {
         domainResponse,
         patentsResponse,
       ] = await Promise.all([
-        axios.get(`${API_URL}/patents/statistics`),
-        axios.get(`${API_URL}/patents/domain-summary`),
-        axios.get(`${API_URL}/patents/`),
+        api.get(`${API_URL}/patents/statistics`),
+        api.get(`${API_URL}/patents/domain-summary`),
+        api.get(`${API_URL}/patents/`),
       ]);
 
       setStatistics(statisticsResponse.data);

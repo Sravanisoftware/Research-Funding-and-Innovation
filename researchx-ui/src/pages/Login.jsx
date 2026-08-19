@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 
 export default function Login() {
@@ -27,6 +27,7 @@ export default function Login() {
         return;
       }
 
+      // Save login information
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userEmail", email);
       localStorage.setItem("accessToken", data.access_token);
@@ -34,6 +35,7 @@ export default function Login() {
       console.log("Login successful");
       console.log("Token saved");
 
+      // Navigate to dashboard
       navigate("/dashboard");
     } catch (error) {
       console.error("Login error:", error);
@@ -51,6 +53,7 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
       <div className="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-10 shadow-xl">
 
+        {/* Title */}
         <h1 className="text-center text-4xl font-bold text-cyan-400">
           ResearchX
         </h1>
@@ -61,6 +64,7 @@ export default function Login() {
 
         <form onSubmit={handleLogin} className="space-y-5">
 
+          {/* Email */}
           <div>
             <label className="text-slate-300">
               Email
@@ -76,6 +80,7 @@ export default function Login() {
             />
           </div>
 
+          {/* Password */}
           <div>
             <label className="text-slate-300">
               Password
@@ -91,6 +96,7 @@ export default function Login() {
             />
           </div>
 
+          {/* Login button */}
           <button
             type="submit"
             disabled={loading}
@@ -100,6 +106,15 @@ export default function Login() {
           </button>
 
         </form>
+
+        {/* Link to register */}
+        <p className="mt-6 text-center text-slate-400">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-cyan-400 hover:underline">
+            Create one
+          </Link>
+        </p>
+
       </div>
     </div>
   );

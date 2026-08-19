@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
@@ -18,7 +18,7 @@ import {
   Rocket,
 } from "lucide-react";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "";
 
 export default function AIInsights() {
   const [data, setData] = useState(null);
@@ -30,7 +30,7 @@ export default function AIInsights() {
       setLoading(true);
       setError("");
 
-      const response = await axios.get(
+      const response = await api.get(
         `${API_URL}/patents/ai-insights`
       );
 

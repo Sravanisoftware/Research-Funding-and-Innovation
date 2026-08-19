@@ -38,6 +38,11 @@ export default function Settings() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  // Tracks whether a research profile already exists in the
+  // database for this user. Determines whether saving should
+  // POST (create) or PUT (update).
+  const [profileExists, setProfileExists] = useState(false);
+
   // =====================================================
   // NOTIFICATION SETTINGS
   // =====================================================
@@ -77,6 +82,8 @@ export default function Settings() {
       // JWT is automatically attached by axios interceptor
       const response = await api.get("/profile/");
 
+      setProfileExists(true);
+
       const savedEmail = localStorage.getItem("userEmail") || "";
 
       setEmail(savedEmail);
@@ -113,8 +120,11 @@ export default function Settings() {
 
         setError("Your session has expired. Please login again.");
       } else if (err.response?.status === 404) {
-        setError(
-          "Research profile not found. Please create your research profile first."
+        // No profile yet — this is expected for new accounts.
+        // Leave the form empty and let the user create one.
+        setProfileExists(false);
+        setMessage(
+          "You don't have a research profile yet. Fill in the form below and save to create one."
         );
       } else {
         setError(
@@ -155,7 +165,13 @@ export default function Settings() {
       setMessage("");
       setError("");
 
-      const response = await api.put("/profile/", profile);
+      // First save ever -> create the profile.
+      // Subsequent saves -> update the existing profile.
+      const response = profileExists
+        ? await api.put("/profile/", profile)
+        : await api.post("/profile/", profile);
+
+      setProfileExists(true);
 
       setProfile({
         organization: response.data.organization || "",
@@ -166,7 +182,11 @@ export default function Settings() {
         patents: response.data.patents || "",
       });
 
-      setMessage("Profile updated successfully.");
+      setMessage(
+        profileExists
+          ? "Profile updated successfully."
+          : "Profile created successfully."
+      );
     } catch (err) {
       console.error("Error saving profile:", err);
 
@@ -462,7 +482,9 @@ export default function Settings() {
                   >
                     {saving
                       ? "Saving..."
-                      : "Save Changes"}
+                      : profileExists
+                      ? "Save Changes"
+                      : "Create Profile"}
                   </button>
 
                 </div>

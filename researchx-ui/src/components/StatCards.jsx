@@ -1,14 +1,11 @@
-
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import {
   FileText,
   Lightbulb,
   Landmark,
   IndianRupee,
 } from "lucide-react";
-
-const API_URL = "http://127.0.0.1:8000";
 
 export default function StatCards() {
   const [patents, setPatents] = useState(0);
@@ -25,9 +22,9 @@ export default function StatCards() {
 
         const [patentsResponse, technologiesResponse, fundingResponse] =
           await Promise.all([
-            axios.get(`${API_URL}/patents/`),
-            axios.get(`${API_URL}/technologies/`),
-            axios.get(`${API_URL}/funding/`),
+            api.get("/patents/"),
+            api.get("/technologies/"),
+            api.get("/funding/"),
           ]);
 
         const patentsData = patentsResponse.data || [];
@@ -38,11 +35,6 @@ export default function StatCards() {
         setTechnologies(technologiesData.length);
         setFunding(fundingData.length);
 
-        // Convert funding amounts such as:
-        // "₹20,00,000"
-        // "1500000"
-        // "2000000"
-        // into numbers and calculate total.
         const total = fundingData.reduce((sum, item) => {
           const amount = String(item.funding_amount || "")
             .replace(/[₹,\s]/g, "");
@@ -159,4 +151,3 @@ export default function StatCards() {
     </div>
   );
 }
-

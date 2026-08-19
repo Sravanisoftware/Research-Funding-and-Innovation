@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
 import {
   Landmark,
   Search,
@@ -15,7 +14,7 @@ import {
   IndianRupee,
 } from "lucide-react";
 
-const API_URL = "http://127.0.0.1:8000/funding";
+import api from "../api/axios";
 
 const emptyForm = {
   title: "",
@@ -43,7 +42,6 @@ export default function FundingTable() {
   const [selectedFunding, setSelectedFunding] = useState(null);
 
   const [form, setForm] = useState(emptyForm);
-
   const [saving, setSaving] = useState(false);
 
   // =========================================================
@@ -55,7 +53,7 @@ export default function FundingTable() {
       setLoading(true);
       setError("");
 
-      const response = await axios.get(`${API_URL}/`);
+      const response = await api.get("/funding/");
 
       setFunding(response.data);
     } catch (err) {
@@ -79,44 +77,25 @@ export default function FundingTable() {
   // =========================================================
 
   const parseFundingAmount = (value) => {
-    if (
-      value === null ||
-      value === undefined ||
-      value === ""
-    ) {
+    if (value === null || value === undefined || value === "") {
       return 0;
     }
 
-    const text = String(value)
-      .trim()
-      .toLowerCase();
+    const text = String(value).trim().toLowerCase();
 
     if (text.includes("cr")) {
-      const number = parseFloat(
-        text.replace(/[^0-9.]/g, "")
-      );
+      const number = parseFloat(text.replace(/[^0-9.]/g, ""));
 
-      return Number.isNaN(number)
-        ? 0
-        : number * 10000000;
+      return Number.isNaN(number) ? 0 : number * 10000000;
     }
 
-    if (
-      text.includes("lakh") ||
-      text.includes("lac")
-    ) {
-      const number = parseFloat(
-        text.replace(/[^0-9.]/g, "")
-      );
+    if (text.includes("lakh") || text.includes("lac")) {
+      const number = parseFloat(text.replace(/[^0-9.]/g, ""));
 
-      return Number.isNaN(number)
-        ? 0
-        : number * 100000;
+      return Number.isNaN(number) ? 0 : number * 100000;
     }
 
-    const number = parseFloat(
-      text.replace(/[^0-9.]/g, "")
-    );
+    const number = parseFloat(text.replace(/[^0-9.]/g, ""));
 
     return Number.isNaN(number) ? 0 : number;
   };
@@ -142,23 +121,15 @@ export default function FundingTable() {
 
   const filteredFunding = useMemo(() => {
     return funding.filter((item) => {
-      const searchText = search
-        .toLowerCase()
-        .trim();
+      const searchText = search.toLowerCase().trim();
 
       const matchesSearch =
-        item.title
-          ?.toLowerCase()
-          .includes(searchText) ||
-        item.organization
-          ?.toLowerCase()
-          .includes(searchText) ||
+        item.title?.toLowerCase().includes(searchText) ||
+        item.organization?.toLowerCase().includes(searchText) ||
         item.research_domain
           ?.toLowerCase()
           .includes(searchText) ||
-        item.description
-          ?.toLowerCase()
-          .includes(searchText) ||
+        item.description?.toLowerCase().includes(searchText) ||
         String(item.funding_amount ?? "")
           .toLowerCase()
           .includes(searchText);
@@ -185,8 +156,7 @@ export default function FundingTable() {
 
   const totalFunding = funding.reduce(
     (sum, item) =>
-      sum +
-      parseFundingAmount(item.funding_amount),
+      sum + parseFundingAmount(item.funding_amount),
     0
   );
 
@@ -255,21 +225,14 @@ export default function FundingTable() {
       };
 
       if (editingId) {
-        await axios.put(
-          `${API_URL}/${editingId}`,
-          payload
-        );
+        await api.put(`/funding/${editingId}`, payload);
       } else {
-        await axios.post(
-          `${API_URL}/`,
-          payload
-        );
+        await api.post("/funding/", payload);
       }
 
       closeForm();
 
       await fetchFunding();
-
     } catch (err) {
       console.error("Save funding error:", err);
 
@@ -298,12 +261,9 @@ export default function FundingTable() {
     try {
       setError("");
 
-      await axios.delete(
-        `${API_URL}/${id}`
-      );
+      await api.delete(`/funding/${id}`);
 
       await fetchFunding();
-
     } catch (err) {
       console.error("Delete funding error:", err);
 
@@ -367,9 +327,7 @@ export default function FundingTable() {
   return (
     <div className="mt-8">
 
-      {/* =====================================================
-          ERROR
-      ====================================================== */}
+      {/* ERROR */}
 
       {error && (
         <div className="mb-6 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl p-4">
@@ -377,14 +335,11 @@ export default function FundingTable() {
         </div>
       )}
 
-      {/* =====================================================
-          STATISTICS
-      ====================================================== */}
+      {/* STATISTICS */}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
         <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 hover:border-cyan-400 transition">
-
           <p className="text-slate-400 text-sm">
             Funding Programs
           </p>
@@ -392,11 +347,9 @@ export default function FundingTable() {
           <p className="text-3xl font-bold text-white mt-2">
             {totalPrograms}
           </p>
-
         </div>
 
         <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 hover:border-green-400 transition">
-
           <p className="text-slate-400 text-sm">
             Organizations
           </p>
@@ -404,11 +357,9 @@ export default function FundingTable() {
           <p className="text-3xl font-bold text-green-400 mt-2">
             {organizations}
           </p>
-
         </div>
 
         <div className="bg-slate-900 border border-slate-700 rounded-xl p-5 hover:border-yellow-400 transition">
-
           <p className="text-slate-400 text-sm">
             Total Funding
           </p>
@@ -416,14 +367,11 @@ export default function FundingTable() {
           <p className="text-3xl font-bold text-yellow-400 mt-2">
             ₹ {totalFunding.toLocaleString("en-IN")}
           </p>
-
         </div>
 
       </div>
 
-      {/* =====================================================
-          MAIN CARD
-      ====================================================== */}
+      {/* MAIN CARD */}
 
       <div className="bg-slate-900 border border-slate-700 rounded-2xl shadow-xl p-6">
 
@@ -439,7 +387,6 @@ export default function FundingTable() {
             />
 
             <div>
-
               <h2 className="text-2xl font-bold text-white">
                 Funding Repository
               </h2>
@@ -447,7 +394,6 @@ export default function FundingTable() {
               <p className="text-slate-400 text-sm">
                 Explore and manage research funding opportunities.
               </p>
-
             </div>
 
           </div>
@@ -474,9 +420,7 @@ export default function FundingTable() {
 
         </div>
 
-        {/* =====================================================
-            SEARCH + FILTER
-        ====================================================== */}
+        {/* SEARCH + FILTER */}
 
         <div className="flex flex-col lg:flex-row gap-4 mb-6">
 
@@ -491,9 +435,7 @@ export default function FundingTable() {
               type="text"
               placeholder="Search title, organization, domain..."
               value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
+              onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-12 pr-4 py-3 text-white placeholder:text-slate-500 outline-none focus:border-cyan-400 transition"
             />
 
@@ -508,16 +450,11 @@ export default function FundingTable() {
 
             <select
               value={domainFilter}
-              onChange={(e) =>
-                setDomainFilter(e.target.value)
-              }
+              onChange={(e) => setDomainFilter(e.target.value)}
               className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white outline-none focus:border-cyan-400"
             >
               {domains.map((domain) => (
-                <option
-                  key={domain}
-                  value={domain}
-                >
+                <option key={domain} value={domain}>
                   Domain: {domain}
                 </option>
               ))}
@@ -525,8 +462,7 @@ export default function FundingTable() {
 
           </div>
 
-          {(search ||
-            domainFilter !== "All") && (
+          {(search || domainFilter !== "All") && (
             <button
               onClick={clearFilters}
               className="flex items-center justify-center gap-2 bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl px-4 py-3 hover:bg-red-500/20 transition"
@@ -538,18 +474,14 @@ export default function FundingTable() {
 
         </div>
 
-        {/* =====================================================
-            RESULT COUNT
-        ====================================================== */}
+        {/* RESULT COUNT */}
 
         <div className="mb-4 text-slate-400 text-sm">
-          Showing {filteredFunding.length} of{" "}
-          {funding.length} funding opportunities
+          Showing {filteredFunding.length} of {funding.length} funding
+          opportunities
         </div>
 
-        {/* =====================================================
-            LOADING
-        ====================================================== */}
+        {/* LOADING */}
 
         {loading ? (
           <div className="text-center py-12">
@@ -566,9 +498,7 @@ export default function FundingTable() {
           </div>
         ) : (
 
-          /* ===================================================
-             TABLE
-          ==================================================== */
+          /* TABLE */
 
           <div className="overflow-x-auto rounded-xl">
 
@@ -613,101 +543,83 @@ export default function FundingTable() {
               <tbody>
 
                 {filteredFunding.length > 0 ? (
-                  filteredFunding.map(
-                    (item, index) => {
+                  filteredFunding.map((item, index) => {
 
-                      const amount =
-                        parseFundingAmount(
-                          item.funding_amount
-                        );
+                    const amount = parseFundingAmount(
+                      item.funding_amount
+                    );
 
-                      return (
-                        <tr
-                          key={item.id}
-                          className="border-b border-slate-800 hover:bg-slate-800/60 transition"
-                        >
+                    return (
+                      <tr
+                        key={item.id}
+                        className="border-b border-slate-800 hover:bg-slate-800/60 transition"
+                      >
 
-                          <td className="px-5 py-4 text-slate-500">
-                            {index + 1}
-                          </td>
+                        <td className="px-5 py-4 text-slate-500">
+                          {index + 1}
+                        </td>
 
-                          <td className="px-5 py-4">
+                        <td className="px-5 py-4">
+                          <p className="font-medium text-white">
+                            {item.title}
+                          </p>
+                        </td>
 
-                            <p className="font-medium text-white">
-                              {item.title}
-                            </p>
+                        <td className="px-5 py-4 text-slate-300">
+                          {item.organization}
+                        </td>
 
-                          </td>
+                        <td className="px-5 py-4">
+                          <span className="bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-full text-sm">
+                            {item.research_domain}
+                          </span>
+                        </td>
 
-                          <td className="px-5 py-4 text-slate-300">
-                            {item.organization}
-                          </td>
+                        <td className="px-5 py-4">
+                          <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full font-semibold">
+                            ₹ {amount.toLocaleString("en-IN")}
+                          </span>
+                        </td>
 
-                          <td className="px-5 py-4">
+                        <td className="px-5 py-4 text-slate-300">
+                          {formatDate(item.deadline)}
+                        </td>
 
-                            <span className="bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-full text-sm">
-                              {item.research_domain}
-                            </span>
+                        <td className="px-5 py-4">
 
-                          </td>
+                          <div className="flex items-center gap-2">
 
-                          <td className="px-5 py-4">
+                            <button
+                              onClick={() => openDetails(item)}
+                              title="View"
+                              className="p-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition"
+                            >
+                              <Eye size={17} />
+                            </button>
 
-                            <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full font-semibold">
-                              ₹{" "}
-                              {amount.toLocaleString(
-                                "en-IN"
-                              )}
-                            </span>
+                            <button
+                              onClick={() => openEditForm(item)}
+                              title="Edit"
+                              className="p-2 rounded-lg bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 transition"
+                            >
+                              <Pencil size={17} />
+                            </button>
 
-                          </td>
+                            <button
+                              onClick={() => handleDelete(item.id)}
+                              title="Delete"
+                              className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition"
+                            >
+                              <Trash2 size={17} />
+                            </button>
 
-                          <td className="px-5 py-4 text-slate-300">
-                            {formatDate(item.deadline)}
-                          </td>
+                          </div>
 
-                          <td className="px-5 py-4">
+                        </td>
 
-                            <div className="flex items-center gap-2">
-
-                              <button
-                                onClick={() =>
-                                  openDetails(item)
-                                }
-                                title="View"
-                                className="p-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition"
-                              >
-                                <Eye size={17} />
-                              </button>
-
-                              <button
-                                onClick={() =>
-                                  openEditForm(item)
-                                }
-                                title="Edit"
-                                className="p-2 rounded-lg bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 transition"
-                              >
-                                <Pencil size={17} />
-                              </button>
-
-                              <button
-                                onClick={() =>
-                                  handleDelete(item.id)
-                                }
-                                title="Delete"
-                                className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition"
-                              >
-                                <Trash2 size={17} />
-                              </button>
-
-                            </div>
-
-                          </td>
-
-                        </tr>
-                      );
-                    }
-                  )
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
 
@@ -743,9 +655,7 @@ export default function FundingTable() {
 
       </div>
 
-      {/* =====================================================
-          ADD / EDIT MODAL
-      ====================================================== */}
+      {/* ADD / EDIT MODAL */}
 
       {showForm && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
@@ -942,9 +852,7 @@ export default function FundingTable() {
         </div>
       )}
 
-      {/* =====================================================
-          DETAILS MODAL
-      ====================================================== */}
+      {/* DETAILS MODAL */}
 
       {showDetails && selectedFunding && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
@@ -1031,9 +939,7 @@ export default function FundingTable() {
               <div className="flex justify-end gap-3 pt-4 border-t border-slate-700">
 
                 <button
-                  onClick={() =>
-                    openEditForm(selectedFunding)
-                  }
+                  onClick={() => openEditForm(selectedFunding)}
                   className="inline-flex items-center gap-2 bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 px-4 py-2.5 rounded-lg"
                 >
                   <Pencil size={17} />
@@ -1060,16 +966,11 @@ export default function FundingTable() {
   );
 }
 
+// ============================================================
+// DETAIL ITEM
+// ============================================================
 
-/* ============================================================
-   DETAIL ITEM
-============================================================ */
-
-function DetailItem({
-  icon,
-  label,
-  value,
-}) {
+function DetailItem({ icon, label, value }) {
   return (
     <div className="bg-slate-800 rounded-xl p-4">
 

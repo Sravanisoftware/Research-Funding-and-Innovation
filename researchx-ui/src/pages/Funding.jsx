@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
@@ -6,6 +7,8 @@ import FundingTable from "../components/FundingTable";
 import api from "../api/axios";
 
 export default function Funding() {
+  const navigate = useNavigate();
+
   const [recommendations, setRecommendations] = useState([]);
   const [researchDomain, setResearchDomain] = useState("");
 
@@ -16,6 +19,7 @@ export default function Funding() {
     useState("");
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profileMissing, setProfileMissing] = useState(false);
 
   // =====================================================
   // LOAD RECOMMENDATIONS
@@ -25,6 +29,7 @@ export default function Funding() {
     try {
       setLoadingRecommendations(true);
       setRecommendationError("");
+      setProfileMissing(false);
 
       // Token is automatically attached by api/axios.js
       const token = localStorage.getItem("accessToken");
@@ -86,6 +91,7 @@ export default function Funding() {
 
       else if (error.response?.status === 404) {
         setIsLoggedIn(true);
+        setProfileMissing(true);
 
         setRecommendationError(
           error.response?.data?.detail ||
@@ -184,6 +190,16 @@ export default function Funding() {
                     className="rounded-lg bg-cyan-500 px-5 py-2 font-semibold text-black transition hover:bg-cyan-400"
                   >
                     Login
+                  </button>
+                )}
+
+                {isLoggedIn && profileMissing && (
+                  <button
+                    type="button"
+                    onClick={() => navigate("/settings")}
+                    className="rounded-lg bg-cyan-500 px-5 py-2 font-semibold text-black transition hover:bg-cyan-400"
+                  >
+                    Complete Your Profile
                   </button>
                 )}
               </div>

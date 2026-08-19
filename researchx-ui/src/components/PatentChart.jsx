@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/axios";
 import {
   BarChart,
   Bar,
@@ -14,10 +14,9 @@ export default function PatentChart() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("http://127.0.0.1:8000/patents/")
+    api
+      .get("/patents/")
       .then((res) => {
-        // Count patents by technology domain
         const counts = {};
 
         res.data.forEach((patent) => {
@@ -33,14 +32,14 @@ export default function PatentChart() {
 
         setData(chartData);
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error("Error loading patents:", err);
+      });
   }, []);
 
   return (
     <div className="mt-8 bg-slate-900 border border-slate-700 rounded-2xl shadow-xl p-6">
-
       <div className="flex justify-between items-center mb-6">
-
         <div>
           <h2 className="text-2xl font-bold text-white">
             Patent Distribution
@@ -50,12 +49,10 @@ export default function PatentChart() {
             Patents grouped by technology domain
           </p>
         </div>
-
       </div>
 
       <ResponsiveContainer width="100%" height={350}>
         <BarChart data={data}>
-
           <CartesianGrid
             stroke="#334155"
             strokeDasharray="4 4"
@@ -75,6 +72,7 @@ export default function PatentChart() {
               backgroundColor: "#0f172a",
               border: "1px solid #334155",
               borderRadius: "10px",
+              color: "#fff",
             }}
           />
 
@@ -83,10 +81,8 @@ export default function PatentChart() {
             fill="#06b6d4"
             radius={[8, 8, 0, 0]}
           />
-
         </BarChart>
       </ResponsiveContainer>
-
     </div>
   );
 }
