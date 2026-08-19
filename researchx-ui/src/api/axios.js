@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://research-funding-backend.onrender.com",
+  baseURL: import.meta.env.VITE_API_URL || "https://research-funding-backend.onrender.com",
 });
 
 // Automatically attach JWT token to every request
